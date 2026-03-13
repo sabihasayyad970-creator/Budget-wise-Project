@@ -1,0 +1,106 @@
+.income-wrapper {
+  display: flex;
+  gap: 35px;
+  padding: 30px;
+}
+
+/* LEFT CARD */
+.income-form-card {
+  flex: 1;
+  background: linear-gradient(135deg, #00bcd4, #1565c0);
+  padding: 30px;
+  border-radius: 18px;
+  color: white;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.income-form-card h2 {
+  margin-bottom: 25px;
+}
+
+.income-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+.income-field label {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.income-field input {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+}
+
+.income-save-btn {
+  margin-top: 15px;
+  padding: 14px;
+  width: 100%;
+  background: white;
+  color: #1565c0;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.income-save-btn:hover {
+  background: #e3f2fd;
+}
+
+/* RIGHT CARD */
+.income-table-card {
+  flex: 2;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+.income-table-card h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.income-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.income-table th {
+  background: #1976d2;
+  color: white;
+  padding: 14px;
+  text-align: left;
+}
+
+.income-table td {
+  padding: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.income-table tr:hover {
+  background: #f1f8ff;
+}
+
+.income-amount {
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+.empty-msg {
+  margin-top: 20px;
+  color: gray;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .income-wrapper {
+    flex-direction: column;
+  }
+}

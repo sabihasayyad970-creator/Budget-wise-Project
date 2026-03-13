@@ -1,0 +1,42 @@
+.goal-container {
+  width: 80%;
+  margin: auto;
+  margin-top: 40px;
+}
+
+.goal-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.goal-form input {
+  padding: 8px;
+  border: 1px solid #ccc;
+}
+
+.goal-form button {
+  padding: 8px 16px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.goal-list {
+  list-style: none;
+  padding: 0;
+}
+
+.goal-item {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.goal-item button {
+  margin-left: 10px;
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+}

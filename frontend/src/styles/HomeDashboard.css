@@ -1,0 +1,64 @@
+.home-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f2f2f2;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.home-card {
+  background: white;
+  padding: 50px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 400px;
+}
+
+.home-card h1 {
+  margin-bottom: 10px;
+  color: #2e7d32;
+}
+
+.home-card p {
+  margin-bottom: 30px;
+  color: #555;
+}
+
+.home-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.login-btn {
+  flex: 1;
+  margin-right: 10px;
+  padding: 12px;
+  border-radius: 25px;
+  border: none;
+  background: #2196f3;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.signup-btn {
+  flex: 1;
+  margin-left: 10px;
+  padding: 12px;
+  border-radius: 25px;
+  border: none;
+  background: #4caf50;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.login-btn:hover {
+  background: #1976d2;
+}
+
+.signup-btn:hover {
+  background: #388e3c;
+}
