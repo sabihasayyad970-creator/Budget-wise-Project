@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/income")
@@ -17,63 +18,87 @@ public class IncomeController {
     @Autowired
     private IncomeRepository incomeRepository;
 
-    // ADD INCOME
-    @PostMapping("/add")
-    public ResponseEntity<Income> addIncome(@RequestBody Income income) {
+    // ✅ 1. GET ALL INCOME
+    @GetMapping
+    public ResponseEntity<List<Income>> getAllIncome() {
+        return ResponseEntity.ok(incomeRepository.findAll());
+    }
+
+    // ✅ 2. ADD INCOME
+    @PostMapping
+    public ResponseEntity<?> addIncome(@RequestBody Income income) {
 
         if (income.getAmount() == null ||
             income.getSource() == null ||
             income.getDate() == null ||
             income.getUserId() == null) {
 
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body("All fields are required");
         }
 
         Income savedIncome = incomeRepository.save(income);
         return ResponseEntity.ok(savedIncome);
     }
 
-    // GET ALL INCOME BY USER
+    // ✅ 3. GET INCOME BY USER
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Income>> getIncomeByUser(@PathVariable Long userId) {
-
-        List<Income> incomes = incomeRepository.findByUserId(userId);
-        return ResponseEntity.ok(incomes);
+        return ResponseEntity.ok(incomeRepository.findByUserId(userId));
     }
 
-    // GET INCOME BY ID
+    // ✅ 4. GET INCOME BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<Income> getIncomeById(@PathVariable Long id) {
+    public ResponseEntity<?> getIncomeById(@PathVariable Long id) {
 
-        return incomeRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Optional<Income> income = incomeRepository.findById(id);
+
+        if (income.isPresent()) {
+            return ResponseEntity.ok(income.get());
+        } else {
+            return ResponseEntity.status(404).body("Income not found");
+        }
     }
 
-    // UPDATE INCOME
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Income> updateIncome(@PathVariable Long id, @RequestBody Income incomeDetails) {
+    // ✅ 5. UPDATE INCOME
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateIncome(@PathVariable Long id,
+                                          @RequestBody Income newIncome) {
 
-        if (!incomeRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
+        Optional<Income> optionalIncome = incomeRepository.findById(id);
+
+        if (optionalIncome.isPresent()) {
+
+            Income income = optionalIncome.get();
+
+            income.setAmount(newIncome.getAmount());
+            income.setSource(newIncome.getSource());
+            income.setDate(newIncome.getDate());
+            income.setUserId(newIncome.getUserId());
+
+            Income updatedIncome = incomeRepository.save(income);
+
+            return ResponseEntity.ok(updatedIncome);
+
+        } else {
+            return ResponseEntity.status(404).body("Income not found");
         }
-
-        incomeDetails.setId(id);
-        Income updatedIncome = incomeRepository.save(incomeDetails);
-
-        return ResponseEntity.ok(updatedIncome);
     }
 
-    // DELETE INCOME
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteIncome(@PathVariable Long id) {
+    // ✅ 6. DELETE INCOME
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteIncome(@PathVariable Long id) {
 
-        if (!incomeRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
+        try {
+            if (!incomeRepository.existsById(id)) {
+                return ResponseEntity.status(404).body("Income not found");
+            }
+
+            incomeRepository.deleteById(id);
+
+            return ResponseEntity.ok("Income deleted successfully");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error deleting: " + e.getMessage());
         }
-
-        incomeRepository.deleteById(id);
-
-        return ResponseEntity.ok("Income deleted successfully");
     }
 }

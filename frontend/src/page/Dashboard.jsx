@@ -8,231 +8,134 @@ import Profile from "./Profile";
 import Reports from "./Reports";
 import Budget from "./Budget";
 import TransactionHistory from "./TransactionHistory";
+import AIAdvisor from "./AIAdvisor";
+import FinancialReport from "./FinancialReport";
 
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer
-} from "recharts";
-
-const data = [
-  { name: "Food", value: 6700 },
-  { name: "Travel", value: 4000 },
-  { name: "Shopping", value: 6500 },
-  { name: "Bills", value: 5800 }
-];
-
-const COLORS = ["#4caf50", "#2196f3", "#ff9800", "#f44336"];
+import ExpenseBarChart from "./charts/ExpenseBarChart";
+import ExpenseBudgetChart from "./charts/ExpenseBudgetChart";
+import TrendChart from "./charts/TrendChart";
 
 function Dashboard() {
-
-  const userData = localStorage.getItem("user");
-  const user = userData ? JSON.parse(userData) : null;
 
   const [activeModule, setActiveModule] = useState("dashboard");
 
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
   const [remainingBudget, setRemainingBudget] = useState(0);
-  const [totalSaved, setTotalSaved] = useState(0);
-
-  const username =
-    user?.name ||
-    user?.username ||
-    user?.email ||
-    "User";
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    window.location.href = "/";
-  };
+  const [prediction, setPrediction] = useState(0);
 
   useEffect(() => {
-    loadDashboardData();
+    loadData();
+    loadPrediction();
   }, []);
 
-  const loadDashboardData = async () => {
-
+  const loadData = async () => {
     try {
+      const incomeRes = await axios.get("http://localhost:8080/api/income");
+      const expenseRes = await axios.get("http://localhost:8080/api/expenses");
 
-      const budgetRes = await axios.get("http://localhost:8080/api/budgets");
-      const savingsRes = await axios.get("http://localhost:8080/api/savings");
+      const income = incomeRes.data.reduce((sum, i) => sum + i.amount, 0);
+      const expense = expenseRes.data.reduce((sum, e) => sum + e.amount, 0);
 
-      const budgets = budgetRes.data;
-      const goals = savingsRes.data;
+      setTotalIncome(income);
+      setTotalExpense(expense);
+      setRemainingBudget(income - expense);
 
-      const totalBudgetLimit = budgets.reduce(
-        (sum, b) => sum + b.monthlyLimit,
-        0
-      );
+    } catch (err) {
+      console.log("Data load error", err);
+    }
+  };
 
-      const totalSpent = budgets.reduce(
-        (sum, b) => sum + b.spentAmount,
-        0
-      );
+  const loadPrediction = async () => {
+    try {
+      const res = await axios.get("http://127.0.0.1:5001/predict-expense");
 
-      const savedAmount = goals.reduce(
-        (sum, g) => sum + g.savedAmount,
-        0
-      );
-
-      setTotalIncome(totalBudgetLimit);
-      setTotalExpense(totalSpent);
-      setRemainingBudget(totalBudgetLimit - totalSpent);
-      setTotalSaved(savedAmount);
-
+      if (res.data.status === "success") {
+        setPrediction(res.data.predicted_expense);
+      }
     } catch (error) {
-      console.error("Dashboard loading error:", error);
+      console.error("Prediction error:", error);
+      setPrediction(0);
     }
   };
 
   const getSuggestion = () => {
-
     if (totalExpense > totalIncome)
-      return "⚠️ You are spending more than your budget!";
-
+      return "⚠️ You are overspending!";
     if (remainingBudget < totalIncome * 0.2)
-      return "⚠️ Your remaining budget is low.";
-
-    if (totalSaved > 0)
-      return "✅ Good job! Your savings are improving.";
-
-    return "💡 Try allocating some income to savings.";
+      return "⚠️ Savings are low";
+    return "✅ Good financial condition";
   };
 
   return (
     <div className="dashboard-container">
 
-      {/* Sidebar */}
+      {/* SIDEBAR */}
       <div className="sidebar">
-
         <h2>BudgetWise</h2>
-
         <ul>
-
-          <li
-            className={activeModule === "dashboard" ? "active" : ""}
-            onClick={() => setActiveModule("dashboard")}
-          >
-            📊 Dashboard
-          </li>
-
-          <li
-            className={activeModule === "profile" ? "active" : ""}
-            onClick={() => setActiveModule("profile")}
-          >
-            👤 Profile
-          </li>
-
-          <li
-            className={activeModule === "income" ? "active" : ""}
-            onClick={() => setActiveModule("income")}
-          >
-            💰 Income
-          </li>
-
-          <li
-            className={activeModule === "expense" ? "active" : ""}
-            onClick={() => setActiveModule("expense")}
-          >
-            💳 Expense
-          </li>
-
-          <li
-            className={activeModule === "budget" ? "active" : ""}
-            onClick={() => setActiveModule("budget")}
-          >
-            🏦 Budget
-          </li>
-
-          <li
-            className={activeModule === "reports" ? "active" : ""}
-            onClick={() => setActiveModule("reports")}
-          >
-            📈 Reports
-          </li>
-
-          <li
-            className={activeModule === "ai" ? "active" : ""}
-            onClick={() => setActiveModule("ai")}
-          >
-            🤖 AI Advisor
-          </li>
-
-          <li onClick={handleLogout}>
-            🚪 Logout
-          </li>
-
+          <li onClick={() => setActiveModule("dashboard")}>📊 Dashboard</li>
+          <li onClick={() => setActiveModule("profile")}>👤 Profile</li>
+          <li onClick={() => setActiveModule("income")}>💰 Income</li>
+          <li onClick={() => setActiveModule("expense")}>💳 Expense</li>
+          <li onClick={() => setActiveModule("budget")}>🏦 Budget</li>
+          <li onClick={() => setActiveModule("transactions")}>📜 Transactions</li>
+          <li onClick={() => setActiveModule("advisor")}>🤖 AI Advisor</li>
+          <li onClick={() => setActiveModule("reports")}>📄 Report</li>
         </ul>
-
       </div>
 
-      {/* Main Content */}
+      {/* MAIN */}
       <div className="main-content">
 
         {activeModule === "dashboard" && (
           <>
-
-            <div className="top-bar">
-              <h3>Welcome back, {username} 👋</h3>
-            </div>
-
+            {/* SUMMARY */}
             <div className="card-container">
-
               <div className="summary-card income">
-                <h4>Total Budget Limit</h4>
+                <h4>Total Income</h4>
                 <h2>₹ {totalIncome}</h2>
               </div>
 
               <div className="summary-card expense">
-                <h4>Total Spent</h4>
+                <h4>Total Expense</h4>
                 <h2>₹ {totalExpense}</h2>
               </div>
 
               <div className="summary-card budget">
-                <h4>Remaining Budget</h4>
+                <h4>Remaining</h4>
                 <h2>₹ {remainingBudget}</h2>
               </div>
-
-              <div className="summary-card budget">
-                <h4>Total Savings</h4>
-                <h2>₹ {totalSaved}</h2>
-              </div>
-
             </div>
 
-            <div className="section">
+            {/* TREND */}
+            <div className="module-box">
+              <TrendChart />
+            </div>
 
-              <h4>Expense Breakdown</h4>
+            {/* 🔥 FIXED ALIGNMENT ROW */}
+            <div className="chart-row">
+              <div className="module-box">
+                <ExpenseBarChart />
+              </div>
 
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={data}
-                    dataKey="value"
-                    outerRadius={90}
-                    label
-                  >
-                    {data.map((entry, index) => (
-                      <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="module-box">
+                <ExpenseBudgetChart />
+              </div>
+            </div>
 
+            {/* AI SECTION */}
+            <div className="ai-section">
               <div className="ai-box">
-                <strong>AI Suggestion:</strong>
+                <h3>🤖 AI Suggestion</h3>
                 <p>{getSuggestion()}</p>
               </div>
 
+              <div className="ai-box">
+                <h3>📈 Next Month Prediction</h3>
+                <p>₹ {prediction}</p>
+              </div>
             </div>
-
-            {/* Transaction History */}
-            <TransactionHistory />
-
           </>
         )}
 
@@ -240,17 +143,11 @@ function Dashboard() {
         {activeModule === "income" && <AddIncome />}
         {activeModule === "expense" && <AddExpense />}
         {activeModule === "budget" && <Budget />}
-        {activeModule === "reports" && <Reports />}
-
-        {activeModule === "ai" && (
-          <div className="section">
-            <h4>AI Financial Advisor</h4>
-            <p>{getSuggestion()}</p>
-          </div>
-        )}
+        {activeModule === "transactions" && <TransactionHistory />}
+        {activeModule === "advisor" && <AIAdvisor />}
+        {activeModule === "reports" && <FinancialReport />}
 
       </div>
-
     </div>
   );
 }

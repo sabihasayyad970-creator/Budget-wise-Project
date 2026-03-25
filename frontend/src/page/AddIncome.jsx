@@ -17,19 +17,14 @@ function AddIncome() {
 
   // Fetch Income
   const fetchIncome = async () => {
-
     try {
-
       const res = await axios.get(
         `http://localhost:8080/api/income/user/${user.id}`
       );
-
       setIncomeList(res.data);
-
     } catch (error) {
       console.error("Fetch income error:", error);
     }
-
   };
 
   useEffect(() => {
@@ -38,25 +33,23 @@ function AddIncome() {
 
   // Input change
   const handleChange = (e) => {
-
     setIncome({
       ...income,
       [e.target.name]: e.target.value
     });
-
   };
 
-  // Submit form
+  // ✅ FIXED SUBMIT
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     try {
 
       if (editId) {
 
+        // ✅ CORRECT PUT API
         await axios.put(
-          `http://localhost:8080/api/income/update/${editId}`,
+          `http://localhost:8080/api/income/${editId}`,
           {
             ...income,
             userId: user.id
@@ -67,8 +60,9 @@ function AddIncome() {
 
       } else {
 
+        // ✅ CORRECT POST API
         await axios.post(
-          "http://localhost:8080/api/income/add",
+          "http://localhost:8080/api/income",
           {
             ...income,
             userId: user.id
@@ -86,55 +80,38 @@ function AddIncome() {
       fetchIncome();
 
     } catch (error) {
-
       console.error("Add/Update income error:", error);
-
     }
-
   };
 
   // Edit
   const handleEdit = (item) => {
-
     setIncome({
       source: item.source,
       amount: item.amount,
       date: item.date
     });
-
     setEditId(item.id);
-
   };
 
-  // Delete
+  // ✅ FIXED DELETE
   const handleDelete = async (id) => {
-
     if (!window.confirm("Delete this income?")) return;
 
     try {
-
       await axios.delete(
-        `http://localhost:8080/api/income/delete/${id}`
+        `http://localhost:8080/api/income/${id}`
       );
-
       fetchIncome();
-
     } catch (error) {
-
       console.error("Delete error:", error);
-
     }
-
   };
 
   return (
-
     <div className="income-wrapper">
 
-      {/* FORM */}
-
       <div className="income-form-card">
-
         <h2>💰 Add Income</h2>
 
         <form onSubmit={handleSubmit}>
@@ -172,24 +149,17 @@ function AddIncome() {
             />
           </div>
 
-          <button className="income-save-btn">
-
+          <button type="submit" className="income-save-btn">
             {editId ? "Update Income" : "Add Income"}
-
           </button>
 
         </form>
-
       </div>
 
-      {/* TABLE */}
-
       <div className="income-table-card">
-
         <h2>📊 Income History</h2>
 
         <table className="income-table">
-
           <thead>
             <tr>
               <th>Source</th>
@@ -202,9 +172,7 @@ function AddIncome() {
           <tbody>
 
             {incomeList.length > 0 ? (
-
               incomeList.map((item) => (
-
                 <tr key={item.id}>
 
                   <td>{item.source}</td>
@@ -216,7 +184,6 @@ function AddIncome() {
                   <td>{item.date}</td>
 
                   <td>
-
                     <button
                       className="edit-btn"
                       onClick={() => handleEdit(item)}
@@ -230,31 +197,22 @@ function AddIncome() {
                     >
                       Delete
                     </button>
-
                   </td>
 
                 </tr>
-
               ))
-
             ) : (
-
               <tr>
                 <td colSpan="4">No income records</td>
               </tr>
-
             )}
 
           </tbody>
-
         </table>
 
       </div>
-
     </div>
-
   );
-
 }
 
 export default AddIncome;

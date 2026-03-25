@@ -11,6 +11,7 @@ import AddIncome from "./page/AddIncome";
 import Budget from "./page/Budget";
 import SavingsGoal from "./page/SavingsGoal";
 import Reports from "./page/Reports";
+import AIAdvisor from "./page/AIAdvisor";
 
 
 function App() {
@@ -41,6 +42,8 @@ function App() {
         <Route path="/savings" element={<SavingsGoal />} />
          
          <Route path="/reports" element={<Reports />} />
+         
+         <Route path="/advisor" element={<AIAdvisor />} />
 
       </Routes>
 
